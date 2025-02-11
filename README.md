@@ -1,1 +1,1 @@
-IncluSight is a system that assess inclusive practices within a course syllabus, in order to provide individualized feedback for instructors to make their course more inclusive. This project is the front-end, developed with svelte framework. 
+IncluSight is a system that assess inclusive practices within a course syllabus, in order to provide individualized feedback for instructors to make their course more inclusive. This project is the front-end. 
