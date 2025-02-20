@@ -18,19 +18,25 @@
 </p>
 
 
-<h2>Select a Dataset</h2>
+<h2>Please select a course to explore the syllabi analysis further!</h2>
 <!-- <p>Home is rendering!</p> ADD THIS -->
 
 <!-- Dataset Selection Buttons -->
 <div class="dataset-buttons">
-    <button on:click={() => goToDataset("dataset1")}>View Dataset 1</button>
-    <button on:click={() => goToDataset("dataset2")}>View Dataset 2</button>
-    <button on:click={() => goToDataset("dataset3")}>View Dataset 3</button>
+    <button on:click={() => goToDataset("dataset1")}>View Course 1</button>
+    <button on:click={() => goToDataset("dataset2")}>View Course 2</button>
+    <button on:click={() => goToDataset("dataset3")}>View Course 3</button>
 </div>
+
+<p>
+    You may select any of the course to begin explore syllabi analysis. If you would like to explore a different course, 
+    please return to "Home" and refresh the page before selecting a different course. 
+</p>
+
 
 <style>
     h1 {
-        text-align: center;
+        text-align: left;
         font-size: 2em;
         color: #333;
         margin-bottom: 20px;
