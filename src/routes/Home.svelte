@@ -36,7 +36,7 @@
 
 <style>
     h1 {
-        text-align: left;
+        text-align: center;
         font-size: 2em;
         color: #333;
         margin-bottom: 20px;
@@ -45,7 +45,7 @@
     .dataset-buttons {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: left;
         gap: 10px;
     }
 
