@@ -16,9 +16,9 @@
     <Router>
         <nav>
             <Link to="/">Home</Link>
-            <Link to="/datasets/dataset1">Dataset 1</Link>
-            <Link to="/datasets/dataset2">Dataset 2</Link>
-            <Link to="/datasets/dataset3">Dataset 3</Link>
+            <Link to="/datasets/dataset1">Course 1</Link>
+            <Link to="/datasets/dataset2">Course 2</Link>
+            <Link to="/datasets/dataset3">Course 3</Link>
         </nav>
 
         <Route path="/" component={Home} />

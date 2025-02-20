@@ -36,7 +36,7 @@
 
 <style>
     h1 {
-        text-align: center;
+        text-align: left;
         font-size: 2em;
         color: #333;
         margin-bottom: 20px;
@@ -62,5 +62,12 @@
 
     button:hover {
         background-color: #0056b3;
+    }
+
+    p {
+    text-align: left;   /* Ensure text is left-aligned */
+    width: 80%;         /* Optional: Adjust width for better readability */
+    margin: 10px 0;     /* Remove auto-centering and add spacing */
+    max-width: 800px;   /* Limit max width for readability on larger screens */
     }
 </style>
