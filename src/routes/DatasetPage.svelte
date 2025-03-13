@@ -23,9 +23,24 @@
         }
     });
 
+      // Define a mapping from dataset IDs to Course numbers
+  const datasetMapping = {
+    dataset1: "Course 1",
+    dataset2: "Course 2",
+    dataset3: "Course 3",
+    dataset4: "Course 4",
+  };
+
+  // Resolve dataset name
+  const courseName = datasetMapping[datasetId] || `No Course Information Available`;
+
 </script>
 
-<h1>Dataset: {datasetId || "No Dataset ID Found"}</h1>
+
+<h1>{courseName}</h1>
+
+
+<!-- <h1>Course Information: {datasetId || "No Dataset ID Found"}</h1> -->
 
 <!-- Load visualization and details dynamically -->
 <!-- {#if datasetId && datasetId != 'undefined' && datasetId !== null}

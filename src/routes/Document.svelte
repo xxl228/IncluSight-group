@@ -190,11 +190,14 @@
           ? annotateDocument(fullDocument, annotations)
           : marked(fullDocument);
   }
+
+
+
   </script>
   
+  <h1>Example Syllabus</h1>
   
-  
-  <h1>Document: {datasetId}</h1>
+  <!-- <h1>Document: {datasetId}</h1> -->
   
   <div class="example-document">
     {@html annotatedDocument}
