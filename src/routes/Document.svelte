@@ -3,6 +3,7 @@
     import { marked } from 'marked';
     import { fullDocument } from "../data/fullDocument";
     import { annotations } from "../data/documentAnnotations";
+    import { logEvent } from '../lib/logger.js';
   
     export let datasetId;
   
@@ -58,7 +59,7 @@
 
                 retryScrollToHighlight(highlightId, 5); // ✅ Try scrolling up to 5 times
             }
-    }, 500); //delay to ensure content is rendered before scrolling 
+    }, 1000); //delay to ensure content is rendered before scrolling 
   }
 
   //retry when document is ready
@@ -104,7 +105,7 @@
                 lastUrl = window.location.href;
                 extractParams();
             }
-        }, 500);
+        }, 1000);
   });
 
 
@@ -191,6 +192,29 @@
           : marked(fullDocument);
   }
 
+  function observeExample(node, id) {
+  let hoverStart = null;
+
+  const observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+      // User started viewing this example
+      hoverStart = Date.now();
+    } else if (hoverStart) {
+      // User stopped viewing
+      const duration = (Date.now() - hoverStart) / 1000;
+      logEvent("duration", `Document-Example-${id}`, datasetId, duration);
+      hoverStart = null;
+    }
+  }, { threshold: 0.5 }); // 50% in view
+
+  observer.observe(node);
+
+  return {
+    destroy() {
+      observer.unobserve(node);
+    }
+  };
+}
 
 
   </script>
@@ -200,9 +224,17 @@
   <!-- <h1>Document: {datasetId}</h1> -->
   
   <div class="example-document">
-    {@html annotatedDocument}
+    {#each annotations as item}
+        <div
+        id={item.id}
+        use:observeExample={item.id}
+        class="highlighted-example"
+        >
+        {@html annotatedDocument}
+        </div>
+    {/each}
   </div>
-  
+
 
   <button on:click={toggleViewAllExamples}>
     {showAllAnnotations ? 'Hide All Examples' : 'View All Examples'}

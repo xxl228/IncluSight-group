@@ -1,6 +1,7 @@
 <script>
     // import { onMount } from 'svelte';
     import { onMount } from 'svelte';
+    import { logEvent } from '../lib/logger.js';
     // import { get } from 'svelte/store';
     // import { location } from "svelte-routing";
     import { navigate } from 'svelte-routing';
@@ -62,13 +63,13 @@
 
 
     // Reactively update `ones` and `zeros` when data changes
-    $: if (data?.children) {
-        console.log("🔄 Data Updated in Details.svelte:", data);
-        ones = [];
-        zeros = [];
-        gatherLeafNodes(data.children);
-        console.log("Zeros Array:", zeros); // Add this line
-    }
+    // $: if (data?.children) {
+    //     console.log("🔄 Data Updated in Details.svelte:", data);
+    //     ones = [];
+    //     zeros = [];
+    //     gatherLeafNodes(data.children);
+    //     console.log("Zeros Array:", zeros); // Add this line
+    // }
 //     $: if (datasetId && data?.children && ones.length === 0 && zeros.length === 0) {
 //     console.log(`🔄 Processing dataset: ${datasetId}`);
 //     ones = [];
@@ -76,7 +77,28 @@
 //     gatherLeafNodes(data.children);
 //     console.log("✅ Processed dataset:", datasetId, "Zeros Array:", zeros);
 // }
+// fixing the issue of zooming out without list view
+    $: if (data && data.name !== "Root" && zoomLevel >= 0) {
+    ones = [];
+    zeros = [];
 
+    // If it's a hierarchy, search children
+    if (data.children) {
+        gatherLeafNodes(data.children);
+    }
+    // If it's a leaf node itself
+    else if (data.Value !== undefined) {
+        if (data.Value === 1) {
+        ones.push(data);
+        } else if (data.Value === 0) {
+        zeros.push(data);
+        }
+    } else if (data?.name === "Root") {
+      console.log("🟢 At root level — showing intro message");
+      ones = [];
+      zeros = [];
+    }
+}
 
 
         // Recursive function to gather leaf nodes
@@ -108,6 +130,9 @@
 function viewExample(id, event) {
     event.preventDefault(); // ✅ Prevent default <a> behavior
     console.log(`🎯 Scrolling to highlight: ${id}`);
+
+    // ✅ Log interaction to Firestore
+    logEvent("click", `Details-ViewExample-${id}`, datasetId);
 
     let documentContainer = document.querySelector('.example-document'); // Ensure the document is in view
     let element = document.getElementById(id);
@@ -151,7 +176,7 @@ function viewExample(id, event) {
             <h2>{data.name}</h2>
 
             <!-- Display items grouped by Value -->
-            <h3>Inclusive Teaching Practices Found in Current Syllabus</h3>
+            <h3 on:mouseenter={() => logEvent("hover", "Section-InclusiveFound", datasetId)}>Inclusive Teaching Practices Found in Current Syllabus</h3>
             <ul>
                 {#each ones as item}
                     <li><strong>{item.name}</strong>: {item.SpecificsExplained}
@@ -166,7 +191,7 @@ function viewExample(id, event) {
               {/each}
             </ul>
 
-            <h3>Inclusive Elements Could Be Included in Current Syllabus</h3>
+            <h3 on:mouseenter={() => logEvent("hover", "Section-InclusiveMissing", datasetId)}>Inclusive Elements Could Be Included in Current Syllabus</h3>
             <ul>
                 {#each zeros as item}
                         <li>

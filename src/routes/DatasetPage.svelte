@@ -1,5 +1,6 @@
 <script>
     import { onMount } from "svelte";
+    import { logEvent } from '../lib/logger.js';
     import SunburstChart from "../components/SunburstChart2.svelte";
     import Details from "../components/Details.svelte";
     // import Document from "./Document1.svelte";
@@ -8,6 +9,8 @@
     export let datasetId; // Ensure datasetId is correctly passed from the route
     let data = null;  //  Initialize data
     let zoomLevel = 0;  //  Initialize zoomLevel
+    let hoverStart = null;
+
 
     console.log("DatasetPage Loaded - datasetId:", datasetId);
 
@@ -28,17 +31,41 @@
     dataset1: "Course 1",
     dataset2: "Course 2",
     dataset3: "Course 3",
-    dataset4: "Course 4",
+    // dataset4: "Course 4",
   };
 
   // Resolve dataset name
   const courseName = datasetMapping[datasetId] || `No Course Information Available`;
 
+ // Interaction tracking functions
+ function handleClick(id) {
+    logEvent("click", id, datasetId);
+  }
+
+  function handleMouseEnter(id) {
+    hoverStart = Date.now();
+  }
+
+  function handleMouseLeave(id) {
+    if (hoverStart) {
+      const duration = (Date.now() - hoverStart) / 1000;
+      logEvent("duration", id, datasetId, duration);
+    }
+    hoverStart = null;
+  }
+
 </script>
 
 
-<h1>{courseName}</h1>
+<!-- <h1>{courseName}</h1> -->
 
+<h1
+on:click={() => handleClick(`Header-${datasetMapping[datasetId] || datasetId}`)}
+on:mouseenter={() => handleMouseEnter(`Header-${datasetMapping[datasetId] || datasetId}`)}
+on:mouseleave={() => handleMouseLeave(`Header-${datasetMapping[datasetId] || datasetId}`)}
+>
+  {courseName}
+</h1>
 
 <!-- <h1>Course Information: {datasetId || "No Dataset ID Found"}</h1> -->
 
@@ -52,14 +79,22 @@
 {/if} -->
 
 {#if datasetId && datasetId !== "undefined"}
-    <SunburstChart {datasetId} />
+    <div
+        on:click={() => handleClick(`Container-${datasetMapping[datasetId] || datasetId}`)}
+        on:mouseenter={() => handleMouseEnter(`Container-${datasetMapping[datasetId] || datasetId}`)}
+        on:mouseleave={() => handleMouseLeave(`Container-${datasetMapping[datasetId] || datasetId}`)}
+        >
 
-    <!-- Only render Details.svelte when data is available -->
-    {#if data !== null}
-        <Details {datasetId} {data} {zoomLevel} />
-    {/if}
+        <SunburstChart {datasetId} />
 
-    <Document {datasetId} />
+        <!-- Only render Details.svelte when data is available -->
+        {#if data !== null}
+            <Details {datasetId} {data} {zoomLevel} />
+        {/if}
+
+        <Document {datasetId} />
+
+    </div>
 {/if}
 
 

@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import Details from './Details.svelte';
     import * as d3 from 'd3';
+    import {logEvent} from '../lib/logger';
     import { initializeApp } from 'firebase/app';
     import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
     import { getDatabase, ref, onValue } from 'firebase/database';
@@ -40,22 +41,14 @@
     const email = "xxl228@psu.edu";
     const password = "Password!123";
 
+      // 👇 Add this to log clicks on specific nodes
+      function logNodeClick(d) {
+        if (d && d.data && d.data.name) {
+        const label = d.data.name;
+        logEvent("click", `SunburstNode-${label}`, datasetId);
+        }
+    }
 
-    // // Fetch data from Firebase and transform it on mount
-    // onMount(() => {
-    //     const dataRef = ref(database, `/datasets/${datasetId}`); // Reference to the Firebase data path
-    //     onValue(dataRef, (snapshot) => {
-    //         const rawData = snapshot.val(); // Retrieve raw data from Firebase
-    //         console.log("Raw Dataset from Firebase:", rawData); // Log the raw data from Firebase
-    //         data = transformData(rawData); // Transform the data for D3.js
-    //         console.log("Transformed Data Structure:", JSON.stringify(data, null, 2));  // Check data structure
-    //         updateSunburstChart(data); // Render the Sunburst chart with the transformed data
-    //     });
-    // });
-
-    // //  Fetch Data When datasetId Changes
-    // $: if (datasetId) {
-    // console.log("Fetching dataset:", datasetId);
     onMount(() => {
         console.log("📌 onMount Triggered - datasetId:", datasetId);
         if (!datasetId) {
@@ -205,6 +198,9 @@
         
         function clicked(event, p) {
                 // Determine zoom level based on the clicked node's depth
+                handleCategoryClick(p);
+                logNodeClick(p);
+
             zoomLevel = p.depth;
             
             parent.datum(p.parent || root); // Set zoom-out target
@@ -323,6 +319,7 @@
             .selectAll("path")
             .data(root.descendants().slice(1)) // Skip the root node for arcs
             .join("path")
+            .style("cursor", d => d.children ? "pointer" : "default")
             .attr("fill", d => { 
                 while (d.depth > 1) d = d.parent; 
                 return color(d.data.name); // Use the color scale for each category
@@ -331,6 +328,16 @@
             .attr("fill-opacity", d => calculateOpacity(d))
             .attr("d", d => arc(d.current)) // Define the arc path
             .attr("pointer-events", d => arcVisible(d) ? "auto" : "none")  // Use visibility check only during transitions
+            .on("mouseover", function(event, d) {
+                if (d.children) {
+                d3.select(this).attr("stroke", "#333").attr("stroke-width", 2);
+                }
+            })
+            .on("mouseout", function(event, d) {
+            if (d.children) {
+                d3.select(this).attr("stroke", null).attr("stroke-width", null);
+            }
+            })
             .on("click", (event, d) => {
                 event.stopPropagation();  // Prevents event from bubbling up
                 console.log("Node clicked (full structure):", d); // Log the full node structure to debug
@@ -360,6 +367,7 @@
             .attr("dy", "0.35em") // Vertical alignment of text
             .attr("fill-opacity", d => +labelVisible(d.current)) // Set label visibility
             .attr("transform", d => labelTransform(d.current)) // Transform for label position
+            .style("font-weight", d => d.depth === 1 ? "bold" : "normal")
             .text(d => d.data.name); // Display node name
 
         const parent = svg.append("circle")
@@ -388,20 +396,24 @@
         return svg.node(); // Return SVG node for rendering
     }
 
+
 </script>
 
 
-
+<!--on:click={handleCategoryClick}-->
 <div>
     <svg bind:this={element} 
-         on:click={handleCategoryClick}
-         on:keydown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              handleCategoryClick(e);
-            }
-         }}
+         
         tabindex="0"   
         role="button"
+         on:keydown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+            //   handleCategoryClick(e);
+            // optionally keep keyboard zooming
+            console.log("Keyboard interaction not handled yet");
+            }
+         }}
+       
     ></svg> <!-- SVG is now inside a scrollable container, tabindex makes SVG focusable for keyboard navigation, role describes the SVG as a button for screen reader-->
 </div>
 
